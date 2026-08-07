@@ -57,6 +57,7 @@
         <div class="card"><h3>Threat landscape report</h3><p>A regular strategic product for leadership: top threats, trending threat actors, key incidents, recommendations and an outlook section, stored as MISP objects.</p></div>
         <div class="card"><h3>Indicator feed</h3><p>Build a PyMISP query against MISP and get the matching indicators back. Each feed has its own no-login URL for tools to pull from, and is delivered as a value list or CSV. Feeds can be linked to a threat actor profile.</p></div>
         <div class="card"><h3>Threat actor profile</h3><p>Start from what the MISP galaxies hold about an actor, then expand it with your own investigation. Each profile builds a Diamond Model view across adversary, infrastructure, capability and victim, and can link to indicator feeds.</p></div>
+        <div class="card"><h3>AI support</h3><p>Triage, relevance checking and drafting, backed by either OpenAI or a local LLM served over an OpenAI-compatible API such as <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a>. Each feature picks its own provider, model, temperature and prompt, and token usage is tracked per provider.</p></div>
         <div class="card"><h3>Product catalogue</h3><p>A searchable catalogue of published outputs tagged as CTI products. Filter by type and linked PIR, inspect event reports and store feedback.</p></div>
         <div class="card"><h3>Statistics &amp; CTI-CMM</h3><p>Pipeline and program views that bring together source and outcome trends, RFI and feedback KPIs, PIR coverage and MISP source health, plus a <a href="https://cti-cmm.org/" target="_blank" rel="noopener">CTI-CMM</a> maturity metrics panel.</p></div>
       </div>
@@ -142,13 +143,17 @@
       <div class="feature-row reverse">
         <div class="feature-media"><img src="assets/img/8-ai.png" alt="zsazsa AI support" loading="lazy"></div>
         <div class="feature-text">
-          <h3>AI help for analysts</h3>
-          <p>AI-assisted features help with triage, relevance checking and drafting. Each feature can use its own model and prompt, and because they send raw MISP content to the model, you review the output before publishing.</p>
+          <h3>AI help for analysts, on your terms</h3>
+          <p>AI-assisted features help with triage, relevance checking and drafting. zsazsa works with two kinds of provider: <strong>OpenAI</strong>, and a <strong>local LLM</strong> reached over an OpenAI-compatible API such as the one <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a> exposes. Because these features send raw MISP event text to whichever provider is configured, running a local model keeps that content on your own infrastructure.</p>
           <ul>
+            <li>Both providers enabled independently, with one set as the default</li>
+            <li>Per-feature provider, model, temperature and prompt selection</li>
             <li>LLM summaries of MISP reports, written back into MISP</li>
-            <li>AI-assisted drafts for Flash Intel alerts and advisories</li>
-            <li>Per-feature model and prompt configuration</li>
+            <li>Drafts for threat actor profiles, threat landscape reports and briefing stories</li>
+            <li>Flash intel alerts and advisories audited against their source events before publishing</li>
+            <li>Token usage recorded per provider, so local calls are counted separately</li>
           </ul>
+          <p class="muted" style="margin-top:14px;">A provider cannot be switched off while features still point at it, so nothing silently loses its model.</p>
         </div>
       </div>
 

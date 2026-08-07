@@ -138,6 +138,32 @@
     </div>
   </section>
 
+  <!-- AI support -->
+  <section class="section-tint">
+    <div class="container">
+      <div class="grid grid-2" style="align-items:center; gap:48px;">
+        <div>
+          <div class="kicker">AI support</div>
+          <h2 style="font-size:1.9rem; margin:0 0 16px;">Use a hosted model, or keep it all in-house</h2>
+          <p class="muted" style="margin-bottom:18px;">AI-assisted features help with triage, relevance checking and drafting. zsazsa works with two kinds of provider: <strong>OpenAI</strong>, and a <strong>local LLM</strong> reached over an OpenAI-compatible API, such as the one <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a> exposes. Each is enabled on its own, and one is marked as the default.</p>
+          <p class="muted" style="margin-bottom:18px;">These features send raw MISP event text to whichever provider is configured. Running a local model keeps that content on your own infrastructure.</p>
+          <ul class="tick-list">
+            <li>Every feature picks its own provider, model, temperature and prompt</li>
+            <li>Token usage is recorded per provider, so local calls are counted separately</li>
+            <li>Drafts threat actor profiles, threat landscape reports and briefing stories, and audits alerts and advisories against their source events</li>
+            <li>The analyser stops at drafts; publishing and stakeholder delivery stay manual</li>
+          </ul>
+          <div class="callout" style="margin-top:22px;">
+            <strong>Built with AI.</strong> zsazsa itself is developed with the support of AI.
+          </div>
+        </div>
+        <div class="feature-media">
+          <img src="assets/img/8-ai.png" alt="zsazsa AI provider configuration" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section>
     <div class="container">

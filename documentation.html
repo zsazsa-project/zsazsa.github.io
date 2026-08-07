@@ -53,6 +53,7 @@
           <a href="#run">Running the application</a>
           <a href="#apache">Deployment behind Apache</a>
           <a href="#config">Configuration</a>
+          <a href="#ai">AI providers</a>
           <a href="#model">MISP data model</a>
           <a href="#more">Full reference</a>
         </aside>
@@ -139,11 +140,11 @@ ProxyPassReverse /zsazsa  http://127.0.0.1:5000/</code></pre>
             <table class="tbl">
               <thead><tr><th>Tab</th><th>Covers</th></tr></thead>
               <tbody>
-                <tr><td>Connections</td><td>The webapp MISP data store and the OpenAI API key</td></tr>
+                <tr><td>Connections</td><td>The MISP server zsazsa uses as its own data store (<code class="inline">MISP_WEBAPP_URL</code>, <code class="inline">MISP_WEBAPP_KEY</code>, <code class="inline">MISP_WEBAPP_VERIFYCERT</code>)</td></tr>
                 <tr><td>Products</td><td>Product type catalogue and organisation-wide focus points</td></tr>
                 <tr><td>System</td><td>Analyser window, log retention, web server host/port and TLS</td></tr>
                 <tr><td>Prompts</td><td>Prompt templates in <code class="inline">zsazsaprompts/</code></td></tr>
-                <tr><td>AI</td><td>Default model and per-feature model/prompt overrides</td></tr>
+                <tr><td>AI</td><td>The OpenAI and local LLM providers, and per-feature provider, model, temperature and prompt overrides — see <a href="#ai">AI providers</a></td></tr>
                 <tr><td>Context elements</td><td>MISP tags, markers and action presets</td></tr>
                 <tr><td>Notifications</td><td>Named delivery channels: Mattermost webhooks, e-mail over SMTP and Flowintel instances (Teams planned)</td></tr>
                 <tr><td>Styling</td><td>Branding used in PDF exports and notifications</td></tr>
@@ -156,6 +157,26 @@ ProxyPassReverse /zsazsa  http://127.0.0.1:5000/</code></pre>
             <img src="assets/img/9-collectionsources.png" alt="zsazsa collection sources configuration" loading="lazy">
             <figcaption>Collection sources are managed centrally at <code class="inline">/config/sources/</code>, including the scraper, additional MISP servers and manual sources.</figcaption>
           </figure>
+
+          <h2 id="ai">AI providers</h2>
+          <p>zsazsa's AI-assisted features work with two kinds of LLM provider, both set up on the <strong>AI</strong> tab of the settings page. Each can be enabled on its own, and one of the two is marked as the default provider.</p>
+          <ul>
+            <li><strong>OpenAI</strong> — an API key, a default model and the token usage counters.</li>
+            <li><strong>Local LLM</strong> — any server speaking the OpenAI API, for example <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a>. You give it the base URL of the endpoint, such as <code class="inline">http://127.0.0.1:11434</code>, and the <code class="inline">/v1</code> path is appended for you if you leave it off. Ollama ignores the API key, so leave it empty unless the server sits behind a proxy that checks it.</li>
+          </ul>
+
+          <div class="callout"><strong>Where your event text goes.</strong> These features send raw MISP event text to whichever provider is configured. Running a local model keeps that content on your own infrastructure.</div>
+
+          <p>Below the provider cards, a table lists every AI-assisted feature with the provider it uses, an optional model override, a sampling temperature and its prompt file. An empty model field means the feature falls back to its provider's default model, and a provider cannot be disabled while features still point at it. Token usage is recorded per provider, so local calls are counted separately from OpenAI ones.</p>
+
+          <figure class="doc-figure">
+            <img src="assets/img/8-ai.png" alt="zsazsa AI provider and per-feature configuration" loading="lazy">
+            <figcaption>The AI tab: provider cards for OpenAI and a local LLM, with the per-feature provider, model, temperature and prompt table underneath.</figcaption>
+          </figure>
+
+          <p>Two things are worth knowing before you point features at a local model. Leaving the temperature empty hands sampling to the model, which locally can mean a value as high as 1.0; since nearly every feature parses the response back into structured data, a low temperature keeps that output stable. And reasoning models spend part of the token budget thinking before they answer — zsazsa asks the server to skip that step, which Ollama honours, but a server that ignores the request can spend the whole budget and return nothing.</p>
+
+          <p>The exact settings for both providers, and the per-feature overrides, are documented in <a href="https://github.com/zsazsa-project/zsazsa/blob/main/INSTALL.md" target="_blank" rel="noopener">INSTALL.md</a> in the repository.</p>
 
           <h2 id="model">MISP data model</h2>
           <p>Each business entity is stored as one MISP event, with data held inside a custom MISP object. Custom object templates live in <code class="inline">webapp/misp_objects/</code>.</p>
