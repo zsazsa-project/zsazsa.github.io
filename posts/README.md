@@ -32,6 +32,7 @@ status: published
 | `title`    | yes      | Shown as the page H1 and on the index.                           |
 | `date`     | no\*     | `YYYY-MM-DD`. Falls back to the date in the filename.            |
 | `summary`  | no       | Teaser on the index and the page meta description.               |
+| `author`   | no       | Shown in the byline next to the date on the post page.           |
 | `status`   | no       | `published` (default), `draft`, or `hidden`.                     |
 | `external` | no       | A URL. The index links out to it and no local page is built.     |
 

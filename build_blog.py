@@ -151,6 +151,7 @@ class Post:
         if not self.title:
             raise ValueError(f"{path.name}: 'title' is required in front matter")
         self.summary = str(meta.get("summary") or "").strip()
+        self.author = str(meta.get("author") or "").strip()
         self.status = str(meta.get("status") or "published").strip().lower()
         self.external = (str(meta.get("external")).strip() if meta.get("external") else None)
 
@@ -199,6 +200,8 @@ def render_body(post: Post) -> str:
 def build_post_page(post: Post) -> None:
     body_html = render_body(post)
     meta_bits = [post.date_label]
+    if post.author:
+        meta_bits.append(post.author)
     if post.status == "draft":
         meta_bits.append("Draft")
     meta_line = " · ".join(meta_bits)
