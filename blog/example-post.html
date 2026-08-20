@@ -66,8 +66,8 @@ then delete <code>posts/2026-06-29-example-post.md</code> when you no longer nee
 Add the language after the opening fence:</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pymisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyMISP</span>
 
-<span class="n">misp</span> <span class="o">=</span> <span class="n">PyMISP</span><span class="p">(</span><span class="s2">&quot;https://misp.example.com&quot;</span><span class="p">,</span> <span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">events</span> <span class="o">=</span> <span class="n">misp</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;zsazsa:type=&quot;pir&quot;&#39;</span><span class="p">],</span> <span class="n">pythonify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">misp</span> <span class="o">=</span> <span class="n">PyMISP</span><span class="p">(</span><span class="s2">"https://misp.example.com"</span><span class="p">,</span> <span class="s2">"API_KEY"</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">events</span> <span class="o">=</span> <span class="n">misp</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">'zsazsa:type="pir"'</span><span class="p">],</span> <span class="n">pythonify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
 </code></pre></div>
@@ -85,15 +85,15 @@ root-relative path — the build fixes the path for the post page automatically:
 <h2>Video</h2>
 <p>Markdown lets you drop raw HTML straight in. For a YouTube or Vimeo clip, paste
 the embed iframe:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;video-embed&quot;</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://www.youtube.com/embed/VIDEO_ID&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Demo&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">"video-embed"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://www.youtube.com/embed/VIDEO_ID"</span> <span class="na">title</span><span class="o">=</span><span class="s">"Demo"</span>
           <span class="na">allowfullscreen</span><span class="p">&gt;&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </code></pre></div>
 
 <p>For a self-hosted file (keep large videos out of git — prefer an embed or
 git-lfs), use a <code>&lt;video&gt;</code> tag pointing at <code>assets/img/blog/</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">video</span> <span class="na">controls</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;100%&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;assets/img/blog/demo.mp4&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">video</span><span class="p">&gt;</span>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">video</span> <span class="na">controls</span> <span class="na">width</span><span class="o">=</span><span class="s">"100%"</span> <span class="na">src</span><span class="o">=</span><span class="s">"assets/img/blog/demo.mp4"</span><span class="p">&gt;&lt;/</span><span class="nt">video</span><span class="p">&gt;</span>
 </code></pre></div>
         <p class="blog-back"><a href="../news.html">← Back to all posts</a></p>
       </article>
