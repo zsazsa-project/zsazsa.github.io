@@ -37,17 +37,69 @@
     <div class="container">
       <div class="kicker">Blog</div>
       <h1>Managing recurring indicator feeds for your SOC and CSIRT</h1>
-      <p>Coming soon · Draft</p>
+      <p>9 September 2026 · Koen Van Impe</p>
     </div>
   </header>
 
   <section>
     <div class="container">
       <article class="prose blog-post">
-<blockquote>
-<p>This post is still in draft. Replace this body with the article when it is
-ready, set a <code>date:</code> and change <code>status:</code> to <code>published</code>.</p>
-</blockquote>
+<h1>Managing recurring indicator feeds for your SOC and CSIRT</h1>
+<p><strong><a href="https://github.com/zsazsa-project/zsazsa">zsazsa</a></strong> supports day-to-day CTI work: stakeholder management, handling PIRs, GIRs and RFIs, data collection, and building threat intelligence products. This post looks at one of those products, the <strong>indicator feed</strong>.</p>
+<p><img alt="indicator-feed-1.png" src="../assets/img/blog/indicator-feed-1.png" /></p>
+<p>An indicator feed is a list of technical indicators you hand over on a regular basis: IP addresses, domains, URLs, file hashes. Your SOC loads it into a SIEM, a firewall or a proxy blocks on it, and a threat hunter uses it to search back through last month's logs. A CSIRT relies on the same list to spot malicious activity faster and to enrich an incident.</p>
+<p>Most teams end up building these lists with scripts. Someone pulls IP addresses out of MISP for the firewall, someone else writes a domain list for the DNS sinkhole, another builds a CSV for the SIEM, and one script was thrown together for a single incident last year and is still running every night. They usually rely on <a href="https://github.com/MISP/PyMISP">PyMISP</a>, they all do more or less the same thing, and hardly any of them are documented. This post is about moving away from that: from herding scripts to managing feeds in one place.</p>
+<h2>Where the indicators come from</h2>
+<p>Indicators come from your <strong>data collection sources</strong>. In MISP that means what you receive from the communities you're connected to, what your own analysts create by hand, and what zsazsa pulls in from newsletters, articles and reports.</p>
+<p><img alt="indicator-feed-2.png" src="../assets/img/blog/indicator-feed-2.png" /></p>
+<p>Each type of source is there for a different reason. Open source communities give you broad coverage: lots of organisations sharing what they see means you pick up things you'd never spot on your own. Commercial feeds cost money, but in return you usually get more curated indicators. Government and sector sources, a national CSIRT or an ISAC for example, can provide authoritative guidance and a regulator can require you to act on what they send you.</p>
+<p>Indicators are also produced inside your own organisation. The CSIRT works on an incident and the indicators from it should reach the SOC the same day. Detection engineering needs them to write a rule. Threat hunting needs them to look back over the past weeks. <strong>An indicator feed is how you pass that on without mailing a spreadsheet around</strong>.</p>
+<p>Not every feed has to be broad. Some of the most useful ones are narrow: the infrastructure of one threat actor, or the addresses seen during one ongoing investigation.</p>
+<h2>Filter before you hand it over</h2>
+<p>A feed is read by machines more than by people, and a raw list carries duplicates, old entries and values that only produce false positives. The MISP project maintains <a href="https://github.com/MISP/misp-warninglists">warninglists</a> for that reason: cloud provider ranges, public resolvers and other values that might look interesting but aren't. On top of that, some curation is usually needed: strip out indicators you can't act on, entries you have no detection capability for, and remove infrastructure that's probably already been cleaned up. After all, <strong>an unfiltered feed creates alert fatigue</strong>, and alert fatigue is how an initially good feed ends up switched off.</p>
+<h2>Why this gets messy in practice</h2>
+<p>Every consumer wants a different <strong>output format</strong>. The firewall wants one value per line, the SIEM wants CSV with context, a colleague wants JSON. So you write a script per consumer. Then the requirements start moving. Exclude this organisation, their indicators are too noisy. Only indicators with <code>to_ids</code> set. Only the last seven days. Not that event, it was a test. Every change is an edit in a script, and after a year nobody remembers which script feeds which system.</p>
+<p>The queries themselves are usually fine. What is missing is everything around them: no overview, no owner, and no way for a colleague to see what a feed contains without reading the code.</p>
+<h2>In zsazsa, a feed is a product</h2>
+<p>zsazsa treats an indicator feed as an <strong>intelligence product</strong>, the same way it treats a daily briefing or a vulnerability advisory. It has an id, a name, a <a href="https://www.first.org/tlp/">TLP</a>, an audience, an author and a feedback date. It sits in the product list next to the others and has a page of its own.</p>
+<p><img alt="indicator-feed-3.png" src="../assets/img/blog/indicator-feed-3.png" /></p>
+<p>Because it is a product, it can also be sent to stakeholders through their regular notification channels.</p>
+<h2>Building the query</h2>
+<p>A feed starts as a search over MISP attributes, and the query card splits it in three parts.</p>
+<p><img alt="indicator-feed-4.png" src="../assets/img/blog/indicator-feed-4.png" /></p>
+<ul>
+<li><strong>Indicators.</strong> Pick the <a href="https://www.misp-project.org/datamodels/">attribute types</a> you want, for example <code>ip-dst</code>, <code>domain</code> and <code>url</code>, then narrow it down with <strong>tags</strong> and <strong>organisations</strong>. Both work as include and exclude lists, so you can ask for everything tagged with a malware family while leaving out the two organisations you do not trust for blocking. Tags are matched on the event and on the attribute.</li>
+<li><strong>Time.</strong> Feeds age. You can limit on the attribute's last change, either with a quick choice of the last hour, day, week or month, or with an exact date range. The event date is restricted separately. Most operational feeds only want recent material.</li>
+<li><strong>Options.</strong> Restrict to <code>to_ids</code> attributes when the feed is for a blocking device. Ask for published events only if you want reviewed (<em>curated</em>) material, enable the warninglist filter to rule out likely <strong>false positives</strong>, and set the limit (which is also the size of the export) to avoid overloading MISP.</li>
+</ul>
+<p>Every row in the result table has a plus and a minus button, so when you spot a noisy event or organisation in the preview, it only takes one click to add it to the exclude list. This is how a feed gets tuned: <strong>run it, look at what comes back, exclude what you do not want, run it again.</strong></p>
+<p><img alt="indicator-feed-5.png" src="../assets/img/blog/indicator-feed-5.png" /></p>
+<p>The page shows the matching PyMISP call while you work and updates it as you change the filters, so you can see what the feed really asks MISP.</p>
+<p><img alt="indicator-feed-pymisp.png" src="../assets/img/blog/indicator-feed-pymisp.png" /></p>
+<h2>Handing the feed over</h2>
+<p>A feed comes in four different output formats. </p>
+<ul>
+<li><strong>Values</strong> is one unique value per line, which is what a blocklist wants. </li>
+<li><strong>Type + value</strong> is the same list with the type in front, separated by a tab, so a script does not have to guess whether something is a domain or a hash. </li>
+<li><strong>CSV</strong> has one row per matching attribute with the event, the organisation and the server it came from. </li>
+<li><strong>JSON</strong> carries the feed itself, its TLP, the moment the query ran and every indicator with its tags and event.</li>
+</ul>
+<p>Every feed also gets <strong>its own URL</strong>. Point a tool at it and it can pull the list directly. Add <code>?format=csv</code> or <code>?format=json</code> for another output format, and <code>?truncate=off</code> when a consumer wants everything that matches instead of the number the limit allows. Note that anyone holding that link can read the feed, so treat it like a password (<em>access with an API key, and access control for this type of product, are on the roadmap</em>). A feed can also go out via the normal product route, to your stakeholders through their notification channels. That suits recipients who do not run a tool that polls a URL, and people who just want a heads-up via email or via a chat channel such as Mattermost.</p>
+<p><img alt="indicator-feed-rcpts.png" src="../assets/img/blog/indicator-feed-rcpts.png" /></p>
+<h2>Caching, so MISP is left alone</h2>
+<p>A blocklist pulled every five minutes by four devices is a lot of queries for a list that changes once a day. Enable <strong>caching</strong> and pick hourly, daily or weekly.</p>
+<p><img alt="indicator-feed-cache.png" src="../assets/img/blog/indicator-feed-cache.png" /></p>
+<p>The first request runs the query once and writes all four formats to disk. The analyser run refreshes the feeds that are due, so your consumers normally read a file. The schedule follows the moment you saved the feed. Save at 14:16 and it refreshes at :16 past every hour, or at 14:16 every day, so feeds do not all come due at the same time.</p>
+<p>Failures stay visible. If a refresh cannot reach MISP, the feed keeps serving the copy it has and says so on its page and in the list. <strong>It does not hand out an empty file</strong>.</p>
+<h2>Feeds that belong to something</h2>
+<p>A feed is more useful when it belongs to something else in zsazsa.</p>
+<p>Link it to a <strong>threat actor profile</strong>, for example to fill the Infrastructure corner of the Diamond Model, and the indicators travel inside that product. When the profile goes out the feed is run again and its indicators are included, so the reader does not need access to your MISP. The feed page lists the profiles that use it, so you can see what depends on a feed before changing it (note that <em>campaign profiles are planned and will work the same way</em>).</p>
+<p><img alt="indicator-feed-ta.png" src="../assets/img/blog/indicator-feed-ta.png" /></p>
+<p>Link it to a <strong>PIR</strong> and the feed is tied to the intelligence requirement it serves. That is what makes it reviewable: in six months you can ask whether it still answers the question it was created for, and the feedback date reminds you to.</p>
+<h2>What you end up with</h2>
+<p>Instead of a folder of scripts you have a list of feeds. Each has a name, an owner, a TLP, a query you can read on screen, an audience and a URL. A colleague can open it and understand it without reading Python.</p>
+<p>In practice, this means you edit a feed in a form instead of changing a script and deploying it. The feed list shows which feeds exist, who owns them, who receives them and when they last refreshed. The feed page keeps the query, TLP, recipients and refresh history together, so you can check how it is configured and investigate a problem without finding several scripts and cron entries first.</p>
+<p>It is the same MISP underneath. zsazsa does not store the indicators and does not become a second source of truth. It saves the question, runs it on a schedule, and puts the answer where your tools and your stakeholders can reach it.</p>
         <p class="blog-back"><a href="../news.html">← Back to all posts</a></p>
       </article>
     </div>
