@@ -9,7 +9,7 @@ It is a **static, dependency-free site**: plain HTML and one CSS file.
 ```
 index.html            Home / hero + overview
 features.html         Feature tour (from the repo + README)
-documentation.html    Install / run / deploy / config (from the README)
+documentation.html    Quickstart: install (Docker or standard), the setup wizard, a first briefing
 download.html         Points to GitHub
 news.html             Blog posts (published on the MISP project site)
 contact.html          GitHub + info@zsazsa-project.org

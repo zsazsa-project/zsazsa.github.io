@@ -48,13 +48,11 @@
         <div class="card">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></span>
           <h3>Clone the repository</h3>
-          <p style="margin-bottom:18px;">The official source lives on GitHub under <code class="inline">zsazsa-project/zsazsa</code>. Clone it as the <code class="inline">www-data</code> user inside your MISP custom application directory.</p>
+          <p style="margin-bottom:18px;">The official source lives on GitHub under <code class="inline">zsazsa-project/zsazsa</code>. Clone it and let the Docker setup ask how your MISP runs, or install it next to MISP without Docker.</p>
           <div class="prose" style="max-width:none;">
-            <pre><code>cd /var/www/MISP/misp-custom
-sudo -u www-data git clone \
-  https://github.com/zsazsa-project/zsazsa/ zsazsa
+            <pre><code>git clone https://github.com/zsazsa-project/zsazsa.git
 cd zsazsa
-sudo -u www-data bash docs/install.sh</code></pre>
+bash docker/setup.sh</code></pre>
           </div>
           <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:6px;">
             <a href="https://github.com/zsazsa-project/zsazsa/" class="btn btn-primary" target="_blank" rel="noopener">Open on GitHub</a>
@@ -67,12 +65,12 @@ sudo -u www-data bash docs/install.sh</code></pre>
           <h3>What you need first</h3>
           <p style="margin-bottom:14px;">zsazsa sits on top of MISP and does not install it for you. Have these ready:</p>
           <ul class="tick-list">
-            <li>A MISP server to store CTI program data (<code class="inline">MISP_WEBAPP_URL</code>)</li>
-            <li>A MISP server running misp-scraper (<code class="inline">MISP_URL</code>)</li>
-            <li>Optional additional MISP servers as supplementary feeds</li>
-            <li>Python, able to create a virtual environment</li>
+            <li>A MISP server to store CTI program data, and an API key for it</li>
+            <li>Redis; the one MISP uses is enough</li>
+            <li>Docker with the compose plugin, or Python 3.10 or later</li>
+            <li>Optional: misp-scraper, other MISP servers to collect from, and an AI provider</li>
           </ul>
-          <p style="margin-top:16px;"><a href="documentation.html">See the full installation guide →</a></p>
+          <p style="margin-top:16px;"><a href="documentation.html">Follow the quickstart →</a></p>
         </div>
 
       </div>
@@ -99,10 +97,10 @@ sudo -u www-data bash docs/install.sh</code></pre>
   <section>
     <div class="container">
       <div class="cta">
-        <h2>Installed it? Configure your MISP connections next.</h2>
-        <p>Point zsazsa at your webapp and scraper MISP servers, then start collecting and producing.</p>
+        <h2>Installed it? The setup wizard does the rest.</h2>
+        <p>Set up your organisation, data collection sources, AI, focus points and notifications, then start collecting and producing.</p>
         <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-          <a href="documentation.html" class="btn btn-light">Configuration guide</a>
+          <a href="documentation.html#configure" class="btn btn-light">Quickstart</a>
           <a href="features.html" class="btn btn-ghost">Explore features</a>
         </div>
       </div>
