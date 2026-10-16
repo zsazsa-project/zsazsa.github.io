@@ -442,8 +442,90 @@ section { padding: 64px 0; }
 }
 .arch-node.is-app .an-title { color: #fff; }
 .arch-node.is-app .an-sub { color: rgba(255,255,255,.85); }
-.arch-connector { width: 2px; height: 26px; background: var(--border-light); margin: 0 auto; }
+.arch-connector { width: 2px; height: 26px; background: var(--border); margin: 0 auto; }
 .arch-caption { margin: 14px 0 0; font-size: .85rem; color: var(--text-muted); text-align: center; }
+.arch-node.is-optional { border-style: dashed; box-shadow: none; }
+
+/* ─── Quickstart: the three steps and the install tabs ───────────────────── */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 8px 0 30px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.steps li { counter-increment: step; }
+.steps a {
+  display: block;
+  height: 100%;
+  padding: 16px 18px 16px 62px;
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  color: #45566f;
+  font-size: .9rem;
+}
+.steps a:hover { text-decoration: none; border-color: #c2d3ea; box-shadow: var(--shadow-lift); }
+.steps a::before {
+  content: counter(step);
+  position: absolute;
+  left: 18px; top: 16px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #fff;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.steps .step-title { display: block; color: var(--ink); font-weight: 700; font-size: 1.02rem; margin-bottom: 2px; }
+
+.tab-list {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  margin: 22px 0 0;
+}
+.tab-list button {
+  font: inherit;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+.tab-list button:hover { color: var(--blue-deep); }
+.tab-list button[aria-selected="true"] {
+  background: #fff;
+  color: var(--blue-deep);
+  border-color: var(--border);
+  border-bottom: 1px solid #fff;
+}
+.tab-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 4px 24px 18px;
+  margin-bottom: 26px;
+}
+.tab-panel > h3:first-child { margin-top: 20px; }
+/* Without the script both panels show, one after the other. */
+.tab-list:not(.ready) { display: none; }
+.tab-list:not(.ready) ~ .tab-panel { border-top: 1px solid var(--border); border-radius: var(--radius); }
+
+@media (max-width: 860px) {
+  .steps { grid-template-columns: 1fr; }
+  .tab-panel { padding: 4px 16px 14px; }
+}
 
 /* ─── Docs layout with side TOC ──────────────────────────────────────────── */
 .docs-layout { display: grid; grid-template-columns: 232px 1fr; gap: 48px; align-items: start; }

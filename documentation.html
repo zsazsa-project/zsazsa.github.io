@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Documentation · zsazsa CTI</title>
-  <meta name="description" content="zsazsa documentation: prerequisites, installation, running the application, production deployment behind Apache, configuration and the MISP data model.">
+  <title>Quickstart · zsazsa CTI</title>
+  <meta name="description" content="zsazsa quickstart: install zsazsa next to MISP with Docker or a standard installation, configure it with the setup wizard, and publish a first daily threat briefing.">
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,9 +35,9 @@
 
   <header class="page-head">
     <div class="container">
-      <div class="kicker">Documentation</div>
-      <h1>Install, run and deploy zsazsa</h1>
-      <p>This guide is distilled from the project <a href="https://github.com/zsazsa-project/zsazsa/blob/main/README.md" target="_blank" rel="noopener">README</a>. For the complete reference, including every configuration tab and data collection source type, see the README on GitHub.</p>
+      <div class="kicker">Quickstart</div>
+      <h1>Install, configure and run zsazsa</h1>
+      <p>From a fresh checkout to a first daily threat briefing in a stakeholder's inbox. This page is the short path. The <a href="https://github.com/zsazsa-project/zsazsa#readme" target="_blank" rel="noopener">README on GitHub</a> describes every feature and every setting.</p>
     </div>
   </header>
 
@@ -48,168 +48,210 @@
         <!-- TOC -->
         <aside class="docs-toc">
           <div class="toc-title">On this page</div>
-          <a href="#prereq">Before you install</a>
-          <a href="#install">Installation</a>
-          <a href="#run">Running the application</a>
-          <a href="#apache">Deployment behind Apache</a>
-          <a href="#config">Configuration</a>
-          <a href="#ai">AI providers</a>
-          <a href="#model">MISP data model</a>
-          <a href="#more">Full reference</a>
+          <a href="#prereq">Before you start</a>
+          <a href="#install">1. Install</a>
+          <a href="#configure">2. Configure</a>
+          <a href="#run">3. Run</a>
+          <a href="#next">Next steps</a>
         </aside>
 
         <!-- Content -->
         <div class="prose">
-          <p><strong>zsazsa</strong> is a CTI program management and production platform built around <a href="https://www.misp-project.org/" target="_blank" rel="noopener">MISP</a>. It sits on top of your MISP infrastructure and does not install MISP or <a href="https://github.com/cudeso/misp-scraper/" target="_blank" rel="noopener">misp-scraper</a> for you.</p>
+          <ol class="steps">
+            <li><a href="#install"><span class="step-title">Install</span>With Docker, or a standard installation next to MISP.</a></li>
+            <li><a href="#configure"><span class="step-title">Configure</span>The setup wizard: organisation, sources, AI, focus points and notifications.</a></li>
+            <li><a href="#run"><span class="step-title">Run</span>Add a stakeholder, collect events and publish a briefing.</a></li>
+          </ol>
 
-          <h2 id="prereq">Before you install</h2>
-          <p>zsazsa requires the following infrastructure to be in place first:</p>
+          <h2 id="prereq">Before you start</h2>
+          <p>zsazsa sits on top of <a href="https://www.misp-project.org/" target="_blank" rel="noopener">MISP</a> and keeps all its records there. It does not install MISP for you.</p>
           <ul>
-            <li><strong>A MISP server to store CTI program data.</strong> Where zsazsa saves its objects: stakeholders, PIRs, GIRs, flash intel alerts, advisories, briefings and so on. This is the server you point <code class="inline">MISP_WEBAPP_URL</code> at.</li>
-            <li><strong>A MISP server running misp-scraper.</strong> The scraper feeds threat events into a MISP instance that zsazsa polls for the data collection view and analyser pipeline. This is the server you point <code class="inline">MISP_URL</code> at, and it can be the same server as above.</li>
-            <li><strong>One or more additional MISP servers (optional but recommended).</strong> Supplementary intelligence feeds configured under Collection sources, ideally partner-operated or community instances.</li>
+            <li><strong>A MISP server</strong> where zsazsa stores stakeholders, requirements and products, and an API key for it. zsazsa also uses that key to look up a user's role, so take a site admin key, or an org admin key when everyone using zsazsa is in that organisation.</li>
+            <li><strong>Redis.</strong> The Redis MISP already uses is enough. zsazsa keeps its background jobs there and, for single sign-on, reads MISP's sessions from it.</li>
+            <li><strong>Optional:</strong> <a href="https://github.com/cudeso/misp-scraper/" target="_blank" rel="noopener">misp-scraper</a> to turn articles into MISP events, other MISP servers to collect from, and an AI provider (OpenAI, or a local model behind an OpenAI-compatible API such as <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a>). zsazsa works without all three.</li>
           </ul>
 
           <div class="arch">
             <div class="arch-row">
               <div class="arch-node is-app">
                 <div class="an-title">zsazsa</div>
-                <div class="an-sub">CTI program management app</div>
+                <div class="an-sub">CTI program management</div>
               </div>
             </div>
             <div class="arch-connector"></div>
             <div class="arch-row">
               <div class="arch-node">
                 <div class="an-title">MISP</div>
-                <div class="an-sub">Program data store · MISP_WEBAPP_URL</div>
+                <div class="an-sub">Stores zsazsa's records · MISP_WEBAPP_URL</div>
               </div>
-              <div class="arch-node">
-                <div class="an-title">MISP scraper</div>
-                <div class="an-sub">Collection pipeline · MISP_URL</div>
+              <div class="arch-node is-optional">
+                <div class="an-title">misp-scraper</div>
+                <div class="an-sub">Optional · MISP_URL</div>
+              </div>
+              <div class="arch-node is-optional">
+                <div class="an-title">Other MISP servers</div>
+                <div class="an-sub">Optional · Collection sources</div>
               </div>
             </div>
-            <p class="arch-caption">zsazsa runs on top of MISP. One MISP instance stores its program data; another, running misp-scraper, feeds the collection pipeline. The two can be the same server.</p>
+            <p class="arch-caption">One MISP stores zsazsa's records. Events to work on come from misp-scraper, from other MISP servers, from newsletters and from what analysts add by hand. misp-scraper can write to that same MISP.</p>
           </div>
 
-          <div class="callout"><strong>Note:</strong> Follow the official installation guides for MISP and misp-scraper first. zsazsa does not install them.</div>
+          <h2 id="install">1. Install</h2>
+          <p>Docker is the quickest way in: one script asks how your MISP runs and sets up the rest. The standard installation runs zsazsa from a Python virtual environment, in MISP's own directory.</p>
 
-          <h2 id="install">Installation</h2>
-          <p>Installation is recommended inside the MISP custom application directory so it runs under the same web user as MISP. On Ubuntu this means installing as <code class="inline">www-data</code>:</p>
-          <pre><code># Create the custom app directory if it doesn't exist
-mkdir /var/www/MISP/misp-custom
-chown www-data:www-data /var/www/MISP/misp-custom
+          <div class="tab-list" role="tablist">
+            <button type="button" role="tab" id="tab-docker" aria-controls="docker" aria-selected="true">Docker</button>
+            <button type="button" role="tab" id="tab-standard" aria-controls="standard" aria-selected="false">Standard installation</button>
+          </div>
 
+          <div class="tab-panel" role="tabpanel" id="docker" aria-labelledby="tab-docker">
+            <h3>Docker</h3>
+            <p>You need Docker with the compose plugin (<code class="inline">docker compose version</code> should answer), on the host where MISP runs. MISP can be installed normally or with <a href="https://github.com/MISP/misp-docker" target="_blank" rel="noopener">misp-docker</a>.</p>
+            <pre><code>git clone https://github.com/zsazsa-project/zsazsa.git
+cd zsazsa
+bash docker/setup.sh</code></pre>
+            <p>The script asks where MISP runs (on this host, on another host, or in misp-docker), its address and API key, where its Redis is, and whether to use single sign-on. Then it asks where zsazsa listens, whether to add the <code class="inline">/zsazsa</code> proxy to MISP's web server, and whether to run the analyser, the IMAP collector and misp-scraper in Docker too. For misp-docker, its Redis password is <code class="inline">REDIS_PASSWORD</code> in misp-docker's <code class="inline">.env</code>.</p>
+
+            <figure class="doc-figure">
+              <img src="assets/img/setup-1.png" alt="The questions of docker/setup.sh" loading="lazy">
+              <figcaption>setup.sh asks its questions first and shows a summary. Nothing is written or built until you answer yes to "Go ahead?".</figcaption>
+            </figure>
+
+            <p>Building the image takes a few minutes. The script ends with what it did, where zsazsa can be reached and what is left to do.</p>
+
+            <figure class="doc-figure">
+              <img src="assets/img/setup-2.png" alt="The overview at the end of docker/setup.sh" loading="lazy">
+              <figcaption>The overview at the end: the containers that run, the address of zsazsa and the steps that are left.</figcaption>
+            </figure>
+
+            <p>Open zsazsa under MISP's address, <code class="inline">https://your-misp/zsazsa/</code>, logged in to MISP as a site admin, and go on with <a href="#configure">step 2</a>.</p>
+
+            <div class="callout"><strong>Where the settings are.</strong> zsazsa reads its settings from <code class="inline">docker/volumes/config/__init__.py</code>, never from <code class="inline">docker/.env</code>, which only tells Docker Compose how to run the containers. Change a setting on the Settings page, or edit that file and run <code class="inline">docker compose restart</code>. To change an answer, run <code class="inline">bash docker/setup.sh</code> again: your configuration and data are kept.</div>
+
+            <p>The <a href="https://github.com/zsazsa-project/zsazsa/blob/main/docker/README.md" target="_blank" rel="noopener">Docker README</a> covers where your files are, the everyday commands, upgrading and what to check when something does not work.</p>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="standard" aria-labelledby="tab-standard">
+            <h3>Standard installation</h3>
+            <p>zsazsa needs Python 3.10 or later, with <code class="inline">venv</code> and <code class="inline">pip</code>, and the libraries WeasyPrint uses to render product PDFs. On Debian or Ubuntu:</p>
+            <pre><code>sudo apt-get install python3-venv python3-pip python3-dev git \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
+    libffi-dev shared-mime-info</code></pre>
+            <p>Install it in MISP's custom directory, as the web user MISP runs under (<code class="inline">www-data</code> on Ubuntu):</p>
+            <pre><code>sudo mkdir -p /var/www/MISP/misp-custom
+sudo chown www-data:www-data /var/www/MISP/misp-custom
 cd /var/www/MISP/misp-custom
-sudo -u www-data git clone https://github.com/zsazsa-project/zsazsa/ zsazsa
+sudo -u www-data git clone https://github.com/zsazsa-project/zsazsa.git zsazsa
 cd zsazsa
 sudo -u www-data bash docs/install.sh</code></pre>
-          <p>The installer creates a <code class="inline">venv</code> in the project root, installs Python dependencies, prepares the data directory, and creates <code class="inline">config/__init__.py</code> if needed. After installation, edit <code class="inline">config/__init__.py</code> and set your MISP URL and API key settings.</p>
+            <p>The installer creates the virtual environment in <code class="inline">venv/</code>, installs the dependencies and writes <code class="inline">config/__init__.py</code> with a generated <code class="inline">SECRET_KEY</code>. Answer no to its certificate question: MISP's web server takes care of TLS.</p>
 
-          <h2 id="run">Running the application</h2>
-          <p>For local testing, start the application directly:</p>
-          <pre><code>source venv/bin/activate
-python run_webapp.py</code></pre>
-          <p>For any real deployment, run zsazsa behind a reverse proxy rather than exposing the built-in server directly. The proxy can be the same web server that already serves your MISP instance, so zsazsa lives under a subpath of your existing MISP site (for example <code class="inline">https://misp.example.com/zsazsa</code>). This is the recommended setup and is covered in <a href="#apache">Production deployment behind Apache</a> below.</p>
-          <p>The analyser pipeline runs separately, typically via cron:</p>
-          <pre><code>source venv/bin/activate
-python run_analyser.py
-python run_imap_collector.py</code></pre>
+            <h3>The MISP connection</h3>
+            <p>Set the MISP connection in <code class="inline">config/__init__.py</code>. Everything else can be done from the web interface.</p>
+            <pre><code>MISP_WEBAPP_URL = 'https://misp.example.com'
+MISP_WEBAPP_KEY = '&lt;API key&gt;'
+MISP_WEBAPP_VERIFYCERT = True
 
-          <h2 id="apache">Production deployment behind Apache</h2>
-          <p>zsazsa can be served under a subpath of the MISP Apache virtual host, for example <code class="inline">https://misp.example.com/zsazsa</code>. The application adapts to any subpath automatically.</p>
-          <p><strong>1. Keep it running with systemd.</strong> Copy the service template, then enable it. For production, bind the listener to localhost (<code class="inline">127.0.0.1</code>) in <code class="inline">run_webapp.py</code> so it is only reachable through Apache.</p>
-          <pre><code>sudo cp docs/zsazsa.service.template /etc/systemd/system/zsazsa.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now zsazsa.service</code></pre>
-          <p><strong>2. Enable required Apache modules:</strong></p>
-          <pre><code>sudo a2enmod proxy proxy_http headers
-sudo systemctl reload apache2</code></pre>
-          <p><strong>3. Add the proxy</strong> inside the existing <code class="inline">&lt;VirtualHost *:443&gt;</code> block:</p>
-          <pre><code># zsazsa CTI application
+# With misp-scraper: the MISP it writes to (it can be the one above)
+MISP_URL = 'https://misp.example.com'
+MISP_KEY = '&lt;API key&gt;'
+# Without misp-scraper:
+# MISP_SCRAPER_ENABLED = False</code></pre>
+
+            <h3>Serve it under MISP's address</h3>
+            <p>Analysts open zsazsa as <code class="inline">https://misp.example.com/zsazsa</code>. Being under MISP's own address is what makes single sign-on work: the browser only sends MISP's session cookie to that address. Enable the proxy modules with <code class="inline">sudo a2enmod proxy proxy_http headers</code>, then add this inside the <code class="inline">&lt;VirtualHost *:443&gt;</code> block of MISP's Apache configuration and reload Apache:</p>
+            <pre><code># zsazsa CTI application
 ProxyPreserveHost On
 RequestHeader set X-Forwarded-Prefix "/zsazsa"
 RequestHeader set X-Forwarded-Proto "https"
 
-ProxyPass        /zsazsa  http://127.0.0.1:5000/
+ProxyPass        /zsazsa  http://127.0.0.1:5000/ timeout=300
 ProxyPassReverse /zsazsa  http://127.0.0.1:5000/</code></pre>
-          <p>The value in <code class="inline">X-Forwarded-Prefix</code> must match the path used in <code class="inline">ProxyPass</code>/<code class="inline">ProxyPassReverse</code>. The application reads these headers at runtime to construct links and build correct <code class="inline">https://</code> URLs. Without a proxy, both headers are absent and the application behaves exactly as before.</p>
 
-          <h2 id="config">Configuration</h2>
-          <p>Almost all runtime settings live in <code class="inline">config/__init__.py</code>, and most can be changed from the web interface without editing the file directly. The main settings page at <code class="inline">/config</code> groups settings across eight tabs:</p>
+            <h3>Keep it running</h3>
+            <p>Run zsazsa as a service, listening on 127.0.0.1 only. The template has the paths for the installation above; uncomment its <code class="inline">ZSAZSA_BIND=127.0.0.1</code> line.</p>
+            <pre><code>sudo cp docs/zsazsa.service.template /etc/systemd/system/zsazsa.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now zsazsa.service</code></pre>
+            <p>The analyser and the IMAP collector run from the web user's crontab:</p>
+            <pre><code>15 * * * *   cd /var/www/MISP/misp-custom/zsazsa &amp;&amp; venv/bin/python run_analyser.py
+*/15 * * * * cd /var/www/MISP/misp-custom/zsazsa &amp;&amp; venv/bin/python run_imap_collector.py</code></pre>
+            <p>Open <code class="inline">https://misp.example.com/zsazsa/</code>, logged in to MISP as a site admin, and go on with <a href="#configure">step 2</a>.</p>
+            <p><a href="https://github.com/zsazsa-project/zsazsa/blob/main/INSTALL.md" target="_blank" rel="noopener">INSTALL.md</a> has the details: other distributions, single sign-on and its Redis requirements, a MISP whose certificate comes from your own CA, and upgrading.</p>
+          </div>
+
+          <h2 id="configure">2. Configure</h2>
+          <p>The setup wizard takes a site admin through what a new zsazsa needs. The dashboard points to it until zsazsa has a data collection source and focus points, and it is always under Settings &gt; Setup wizard. Every step saves to the same settings as the Settings pages, so you can skip a step, come back later, or run the wizard again.</p>
+
           <div class="table-wrap">
             <table class="tbl">
-              <thead><tr><th>Tab</th><th>Covers</th></tr></thead>
+              <thead><tr><th>Step</th><th>What you set</th></tr></thead>
               <tbody>
-                <tr><td>Connections</td><td>The MISP server zsazsa uses as its own data store (<code class="inline">MISP_WEBAPP_URL</code>, <code class="inline">MISP_WEBAPP_KEY</code>, <code class="inline">MISP_WEBAPP_VERIFYCERT</code>)</td></tr>
-                <tr><td>Products</td><td>Product type catalogue and organisation-wide focus points</td></tr>
-                <tr><td>System</td><td>Analyser window, log retention, web server host/port and TLS</td></tr>
-                <tr><td>Prompts</td><td>Prompt templates in <code class="inline">zsazsaprompts/</code></td></tr>
-                <tr><td>AI</td><td>The OpenAI and local LLM providers, and per-feature provider, model, temperature and prompt overrides — see <a href="#ai">AI providers</a></td></tr>
-                <tr><td>Context elements</td><td>MISP tags, markers and action presets</td></tr>
-                <tr><td>Notifications</td><td>Named delivery channels: Mattermost webhooks, e-mail over SMTP and Flowintel instances (Teams planned)</td></tr>
-                <tr><td>Styling</td><td>Branding used in PDF exports and notifications</td></tr>
+                <tr><td>Your organisation</td><td>The name and logo used on product PDFs and notifications</td></tr>
+                <tr><td>Data collection sources</td><td>Other MISP servers, mailboxes with the newsletters they receive, and manual sources</td></tr>
+                <tr><td>AI</td><td>OpenAI or a local model. Optional: without it you write the text yourself</td></tr>
+                <tr><td>Focus points</td><td>The geographies, sectors, technologies, threat types and threat actors that matter to you, used to judge relevance</td></tr>
+                <tr><td>Notifications</td><td>Mattermost channels, and email channels with the mail server they use</td></tr>
               </tbody>
             </table>
           </div>
-          <p>Collection sources, namely the MISP scraper connection, additional MISP servers, manual sources and IMAP mailboxes for automatic newsletter collection, are managed separately at <code class="inline">/config/sources/</code>. The config file is backed up to <code class="inline">config/__init__.py.backup</code> before each save.</p>
 
           <figure class="doc-figure">
-            <img src="assets/img/9-collectionsources.png" alt="zsazsa collection sources configuration" loading="lazy">
-            <figcaption>Collection sources are managed centrally at <code class="inline">/config/sources/</code>, including the scraper, additional MISP servers and manual sources.</figcaption>
+            <img src="assets/img/wizard-1.png" alt="The dashboard pointing to the setup wizard" loading="lazy">
+            <figcaption>On a new zsazsa, the dashboard points a site admin to the setup wizard.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-2.png" alt="Setup wizard: your organisation" loading="lazy">
+            <figcaption>Your organisation: the name and logo on products.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-3.png" alt="Setup wizard: data collection sources" loading="lazy">
+            <figcaption>Data collection sources: MISP servers, mailboxes and manual sources.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-4.png" alt="Setup wizard: AI" loading="lazy">
+            <figcaption>AI: OpenAI, or a local model over an OpenAI-compatible API.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-5.png" alt="Setup wizard: focus points" loading="lazy">
+            <figcaption>Focus points: what is relevant to your organisation.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-6.png" alt="Setup wizard: notifications" loading="lazy">
+            <figcaption>Notifications: where products are delivered.</figcaption>
+          </figure>
+          <figure class="doc-figure">
+            <img src="assets/img/wizard-7.png" alt="Setup wizard: done" loading="lazy">
+            <figcaption>Done: what is set up, and what to do next.</figcaption>
           </figure>
 
-          <h2 id="ai">AI providers</h2>
-          <p>zsazsa's AI-assisted features work with two kinds of LLM provider, both set up on the <strong>AI</strong> tab of the settings page. Each can be enabled on its own, and one of the two is marked as the default provider.</p>
+          <p>The scraper's filters and limits, the tags zsazsa uses, the prompts, the styling and single sign-on are on Settings &gt; Configuration and Settings &gt; Collection sources. The <a href="https://github.com/zsazsa-project/zsazsa#configuration" target="_blank" rel="noopener">configuration reference</a> describes each setting.</p>
+
+          <h2 id="run">3. Run</h2>
+          <p>A first daily threat briefing, delivered to one stakeholder, goes through everything that has to work.</p>
+
+          <h3>Add a stakeholder</h3>
+          <p>Under Stakeholders &gt; Stakeholders, press <strong>Add stakeholder</strong>. Give it a name and a role (for example SOC), a TLP clearance, the notification channel you made in the wizard, and tick <strong>Daily threat briefing</strong> under the products it subscribes to. A briefing goes to every stakeholder subscribed to it whose TLP clearance covers the briefing's TLP.</p>
+
+          <h3>Get events into data collection</h3>
+          <p>Products &gt; Data collection is where the daily work happens. Events from misp-scraper and the other MISP servers appear there once the cache has refreshed, every 15 minutes or when you press <strong>Refresh cache</strong>. With no source yet, press <strong>Manual entry</strong>, pick a manual source, give the event a title and some content, and press <strong>Create event</strong>.</p>
+
+          <h3>Write and publish the briefing</h3>
+          <p>Tick one or more events and choose <strong>Create product</strong> &gt; <strong>Add to daily briefing (new)</strong>. The briefing opens with one story per event. Set the TLP, write the stories and a summary, or let <strong>Draft everything</strong> do it when AI is set up. Press <strong>Save draft</strong>, then <strong>Publish briefing</strong> on the briefing's page.</p>
+          <p>Delivery runs in the background. The badge in the top bar shows the job, Reporting &gt; Pipeline keeps the history, and the stakeholder receives the briefing on their channel.</p>
+
+          <div class="callout"><strong>Who you are in zsazsa.</strong> zsazsa has no user accounts of its own: it reads who you are from your MISP session, and uses your MISP role to decide whether you may publish or open the settings. Opened directly on port 5000, without a MISP session, everyone works as <code class="inline">admin@admin.test</code> with full rights until single sign-on is switched on.</div>
+
+          <h2 id="next">Next steps</h2>
           <ul>
-            <li><strong>OpenAI</strong> — an API key, a default model and the token usage counters.</li>
-            <li><strong>Local LLM</strong> — any server speaking the OpenAI API, for example <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a>. You give it the base URL of the endpoint, such as <code class="inline">http://127.0.0.1:11434</code>, and the <code class="inline">/v1</code> path is appended for you if you leave it off. Ollama ignores the API key, so leave it empty unless the server sits behind a proxy that checks it.</li>
+            <li><strong>Requirements.</strong> Add PIRs and GIRs with a scope, and data collection highlights the events that match them.</li>
+            <li><strong>The analyser.</strong> With misp-scraper, <strong>Start analyser</strong> on the dashboard turns today's events into draft briefings, flash intel alerts and vulnerability advisories. <a href="https://github.com/zsazsa-project/zsazsa#what-the-analyser-does" target="_blank" rel="noopener">What the analyser does</a> explains each option.</li>
+            <li><strong>Other products.</strong> Flash intel alerts, vulnerability advisories, threat landscape reports, threat actor profiles, indicator feeds and detection engineering requests are shown on the <a href="features.html">features page</a>.</li>
+            <li><strong>Upgrading.</strong> Read the <a href="https://github.com/zsazsa-project/zsazsa/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG</a> first: a release can come with a migration to run.</li>
           </ul>
-
-          <div class="callout"><strong>Where your event text goes.</strong> These features send raw MISP event text to whichever provider is configured. Running a local model keeps that content on your own infrastructure.</div>
-
-          <p>Below the provider cards, a table lists every AI-assisted feature with the provider it uses, an optional model override, a sampling temperature and its prompt file. An empty model field means the feature falls back to its provider's default model, and a provider cannot be disabled while features still point at it. Token usage is recorded per provider, so local calls are counted separately from OpenAI ones.</p>
-
-          <figure class="doc-figure">
-            <img src="assets/img/8-ai.png" alt="zsazsa AI provider and per-feature configuration" loading="lazy">
-            <figcaption>The AI tab: provider cards for OpenAI and a local LLM, with the per-feature provider, model, temperature and prompt table underneath.</figcaption>
-          </figure>
-
-          <p>Two things are worth knowing before you point features at a local model. Leaving the temperature empty hands sampling to the model, which locally can mean a value as high as 1.0; since nearly every feature parses the response back into structured data, a low temperature keeps that output stable. And reasoning models spend part of the token budget thinking before they answer — zsazsa asks the server to skip that step, which Ollama honours, but a server that ignores the request can spend the whole budget and return nothing.</p>
-
-          <p>The exact settings for both providers, and the per-feature overrides, are documented in <a href="https://github.com/zsazsa-project/zsazsa/blob/main/INSTALL.md" target="_blank" rel="noopener">INSTALL.md</a> in the repository.</p>
-
-          <h2 id="model">MISP data model</h2>
-          <p>Each business entity is stored as one MISP event, with data held inside a custom MISP object. Custom object templates live in <code class="inline">webapp/misp_objects/</code>.</p>
-          <div class="table-wrap">
-            <table class="tbl">
-              <thead><tr><th>Entity</th><th>MISP object</th></tr></thead>
-              <tbody>
-                <tr><td>Stakeholder</td><td><code class="inline">zsazsa-stakeholder</code></td></tr>
-                <tr><td>PIR</td><td><code class="inline">zsazsa-pir</code></td></tr>
-                <tr><td>GIR</td><td><code class="inline">zsazsa-gir</code></td></tr>
-                <tr><td>RFI</td><td><code class="inline">zsazsa-rfi</code></td></tr>
-                <tr><td>Flash intel alert</td><td><code class="inline">zsazsa-flash-intel</code></td></tr>
-                <tr><td>VEA</td><td><code class="inline">zsazsa-vea</code></td></tr>
-                <tr><td>Daily briefing</td><td><code class="inline">zsazsa-daily-briefing</code></td></tr>
-                <tr><td>Threat landscape report</td><td><code class="inline">zsazsa-threat-landscape-report</code></td></tr>
-                <tr><td>Indicator feed</td><td><code class="inline">zsazsa-indicator-feed</code></td></tr>
-                <tr><td>Threat actor profile</td><td><code class="inline">zsazsa-threat-actor-profile</code></td></tr>
-                <tr><td>Collection source</td><td><code class="inline">zsazsa-collection-source</code></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p>Every entity event carries a type tag so it can be searched independently of the object. All tags in the <code class="inline">zsazsa:</code> namespace are applied as local tags, so they never sync to connected MISP instances.</p>
-
-          <figure class="doc-figure">
-            <img src="assets/img/x-misp2.png" alt="zsazsa product content and context stored in MISP" loading="lazy">
-            <figcaption>Product content and supporting context sit together in MISP, so analysts can trace from collection evidence to published output.</figcaption>
-          </figure>
-
-          <h2 id="more">Full reference</h2>
-          <p>This page covers the essentials. The complete README documents the notification and distribution flow, per-product coverage, every configuration setting, and how to create each data collection source type.</p>
           <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
-            <a href="https://github.com/zsazsa-project/zsazsa/blob/main/README.md" class="btn btn-primary" target="_blank" rel="noopener">Read the full README</a>
-            <a href="download.html" class="btn btn-ghost">Go to download</a>
+            <a href="https://github.com/zsazsa-project/zsazsa#readme" class="btn btn-primary" target="_blank" rel="noopener">Read the full README</a>
+            <a href="https://github.com/zsazsa-project/zsazsa#configuration" class="btn btn-ghost" target="_blank" rel="noopener">Configuration reference</a>
           </div>
         </div>
 
@@ -248,6 +290,35 @@ ProxyPassReverse /zsazsa  http://127.0.0.1:5000/</code></pre>
     </div>
   </footer>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Docker or standard installation. #docker and #standard in the address
+    // open that tab, so the choice can be linked to.
+    (function () {
+      var list = document.querySelector('.tab-list');
+      var tabs = list.querySelectorAll('[role="tab"]');
+      function show(id) {
+        tabs.forEach(function (tab) {
+          var on = tab.getAttribute('aria-controls') === id;
+          tab.setAttribute('aria-selected', on ? 'true' : 'false');
+          document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+        });
+      }
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var id = tab.getAttribute('aria-controls');
+          show(id);
+          history.replaceState(null, '', '#' + id);
+        });
+      });
+      list.classList.add('ready');
+      var wanted = location.hash.slice(1);
+      show(wanted === 'standard' ? 'standard' : 'docker');
+      if (wanted === 'docker' || wanted === 'standard') {
+        document.getElementById('install').scrollIntoView();
+      }
+    })();
+  </script>
 </body>
 </html>
