@@ -68,7 +68,7 @@
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h4l3 8 4-16 3 8h4"/></svg></span>
           <h3>Live program dashboard</h3>
-          <p>Active PIRs and GIRs, stakeholder counts, analyser pipeline freshness, and pending <a href="https://github.com/cudeso/misp-scraper/" target="_blank" rel="noopener">scraper</a> events awaiting analysis.</p>
+          <p>Active PIRs and GIRs, stakeholder counts, analyser pipeline freshness, the products waiting for review, and pending <a href="https://github.com/cudeso/misp-scraper/" target="_blank" rel="noopener">scraper</a> events awaiting analysis.</p>
         </div>
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
@@ -78,17 +78,17 @@
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
           <h3>Requirement management</h3>
-          <p>Full PIR and GIR lifecycle editing with decision context, priority, scope and ownership. Scope fields sync with focus points and MISP galaxies.</p>
+          <p>Full PIR and GIR lifecycle editing with decision context, priority, scope and ownership. Scope fields sync with focus points and MISP galaxies, and a PIR links to the GIRs it falls under.</p>
         </div>
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
           <h3>Data collection</h3>
-          <p>A cached view of scraper and additional MISP servers. Browse events, refresh, flag for follow-up, import newsletters such as the ETDA CTI robot by paste or automatically over IMAP, and generate LLM summaries back into MISP.</p>
+          <p>A cached view of scraper, additional MISP servers and manual entries. Browse events, refresh, flag for follow-up, import newsletters such as the ETDA CTI robot by paste or automatically over IMAP, and generate LLM summaries back into MISP.</p>
         </div>
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
           <h3>Intelligence products</h3>
-          <p>Flash intel alerts, vulnerability advisories, daily threat briefings, threat landscape reports, indicator feeds and threat actor profiles, each with draft, review, approval and publish flows.</p>
+          <p>Flash intel alerts, vulnerability advisories, daily threat briefings, threat landscape reports, indicator feeds, threat actor profiles and detection engineering requests, each with draft, review, approval and publish flows. Drafts can be approved or rejected together.</p>
         </div>
         <div class="card hover">
           <span class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>
@@ -109,7 +109,7 @@
           <p class="muted" style="margin-bottom:18px;">Distribution is built around stakeholders, roles, product subscriptions, audiences and notification channels. A stakeholder receives a product only when their role is in the audience, they're subscribed to that product type, and their TLP clearance is high enough.</p>
           <ul class="tick-list">
             <li>Audience, subscription and TLP checks applied in one place</li>
-            <li>Delivery over Mattermost, e-mail (SMTP) and Flowintel notification channels, with more to come</li>
+            <li>Delivery over Mattermost, Microsoft Teams, e-mail (SMTP) and Flowintel notification channels, with more to come</li>
             <li>A recipient preview before publishing that shows who will receive each product and who is blocked</li>
             <li>Requirements notify an explicit stakeholder distribution list</li>
           </ul>
@@ -151,7 +151,9 @@
             <li>Every feature picks its own provider, model, temperature and prompt</li>
             <li>Token usage is recorded per provider, so local calls are counted separately</li>
             <li>Drafts threat actor profiles, threat landscape reports and briefing stories, and audits alerts and advisories against their source events</li>
-            <li>The analyser stops at drafts; publishing and stakeholder delivery stay manual</li>
+            <li>The analyser judges new events against your focus points and requirements, drafts the daily briefing, flash intel alerts and vulnerability advisories, and says why it made or declined each one</li>
+            <li>The analyser stops at drafts for an analyst to review; only an alert for a stakeholder on automated mode is sent at once</li>
+            <li>Also works with the <a href="https://github.com/cudeso/ai-connector" target="_blank" rel="noopener">ai-connector</a> MISP module, to summarise events on other MISP servers</li>
           </ul>
           <div class="callout" style="margin-top:22px;">
             <strong>Built with AI.</strong> zsazsa itself is developed with the support of AI.

@@ -66,7 +66,7 @@
           <h2 id="prereq">Before you start</h2>
           <p>zsazsa sits on top of <a href="https://www.misp-project.org/" target="_blank" rel="noopener">MISP</a> and keeps all its records there. It does not install MISP for you.</p>
           <ul>
-            <li><strong>A MISP server</strong> where zsazsa stores stakeholders, requirements and products, and an API key for it. zsazsa also uses that key to look up a user's role, so take a site admin key, or an org admin key when everyone using zsazsa is in that organisation.</li>
+            <li><strong>A MISP server</strong> where zsazsa stores stakeholders, requirements and products, and an API key for it. The key needs no site admin role, but it has to be able to create, change, tag and publish events. The Configuration page warns when it lacks a permission zsazsa uses.</li>
             <li><strong>Redis.</strong> The Redis MISP already uses is enough. zsazsa keeps its background jobs there and, for single sign-on, reads MISP's sessions from it.</li>
             <li><strong>Optional:</strong> <a href="https://github.com/cudeso/misp-scraper/" target="_blank" rel="noopener">misp-scraper</a> to turn articles into MISP events, other MISP servers to collect from, and an AI provider (OpenAI, or a local model behind an OpenAI-compatible API such as <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a>). zsazsa works without all three.</li>
           </ul>
@@ -133,7 +133,7 @@ bash docker/setup.sh</code></pre>
 
           <div class="tab-panel" role="tabpanel" id="standard" aria-labelledby="tab-standard">
             <h3>Standard installation</h3>
-            <p>zsazsa needs Python 3.10 or later, with <code class="inline">venv</code> and <code class="inline">pip</code>, and the libraries WeasyPrint uses to render product PDFs. On Debian or Ubuntu:</p>
+            <p>zsazsa needs Python 3.11 or later, with <code class="inline">venv</code> and <code class="inline">pip</code>, and the libraries WeasyPrint uses to render product PDFs. On Debian or Ubuntu:</p>
             <pre><code>sudo apt-get install python3-venv python3-pip python3-dev git \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
     libffi-dev shared-mime-info</code></pre>
@@ -169,7 +169,7 @@ ProxyPass        /zsazsa  http://127.0.0.1:5000/ timeout=300
 ProxyPassReverse /zsazsa  http://127.0.0.1:5000/</code></pre>
 
             <h3>Keep it running</h3>
-            <p>Run zsazsa as a service, listening on 127.0.0.1 only. The template has the paths for the installation above; uncomment its <code class="inline">ZSAZSA_BIND=127.0.0.1</code> line.</p>
+            <p>Run zsazsa as a service, listening on 127.0.0.1 only. The template has the paths for the installation above; uncomment its <code class="inline">ZSAZSA_BIND=127.0.0.1</code> line. It also reads <code class="inline">/etc/environment</code>, so an outbound proxy set there reaches zsazsa.</p>
             <pre><code>sudo cp docs/zsazsa.service.template /etc/systemd/system/zsazsa.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now zsazsa.service</code></pre>
@@ -190,8 +190,8 @@ sudo systemctl enable --now zsazsa.service</code></pre>
                 <tr><td>Your organisation</td><td>The name and logo used on product PDFs and notifications</td></tr>
                 <tr><td>Data collection sources</td><td>Other MISP servers, mailboxes with the newsletters they receive, and manual sources</td></tr>
                 <tr><td>AI</td><td>OpenAI or a local model. Optional: without it you write the text yourself</td></tr>
-                <tr><td>Focus points</td><td>The geographies, sectors, technologies, threat types and threat actors that matter to you, used to judge relevance</td></tr>
-                <tr><td>Notifications</td><td>Mattermost channels, and email channels with the mail server they use</td></tr>
+                <tr><td>Focus points</td><td>The geographies, sectors, vendors, technologies, threat types and threat actors that matter to you, used to judge relevance</td></tr>
+                <tr><td>Notifications</td><td>Mattermost and Microsoft Teams channels, and email channels with the mail server they use</td></tr>
               </tbody>
             </table>
           </div>
@@ -225,7 +225,7 @@ sudo systemctl enable --now zsazsa.service</code></pre>
             <figcaption>Done: what is set up, and what to do next.</figcaption>
           </figure>
 
-          <p>The scraper's filters and limits, the tags zsazsa uses, the prompts, the styling and single sign-on are on Settings &gt; Configuration and Settings &gt; Collection sources. The <a href="https://github.com/zsazsa-project/zsazsa#configuration" target="_blank" rel="noopener">configuration reference</a> describes each setting.</p>
+          <p>The analyser's settings, the scraper's filters and limits, the tags zsazsa uses, the prompts, the styling and single sign-on are on Settings &gt; Configuration and Settings &gt; Collection sources. The <a href="https://github.com/zsazsa-project/zsazsa#configuration" target="_blank" rel="noopener">configuration reference</a> describes each setting.</p>
 
           <h2 id="run">3. Run</h2>
           <p>A first daily threat briefing, delivered to one stakeholder, goes through everything that has to work.</p>
@@ -245,7 +245,7 @@ sudo systemctl enable --now zsazsa.service</code></pre>
           <h2 id="next">Next steps</h2>
           <ul>
             <li><strong>Requirements.</strong> Add PIRs and GIRs with a scope, and data collection highlights the events that match them.</li>
-            <li><strong>The analyser.</strong> With misp-scraper, <strong>Start analyser</strong> on the dashboard turns today's events into draft briefings, flash intel alerts and vulnerability advisories. <a href="https://github.com/zsazsa-project/zsazsa#what-the-analyser-does" target="_blank" rel="noopener">What the analyser does</a> explains each option.</li>
+            <li><strong>The analyser.</strong> <strong>Start analyser</strong> on the dashboard, or the scheduled analyser, reads what came in since its previous run, judges each event against your focus points and active PIRs and GIRs, and drafts daily briefings, flash intel alerts and vulnerability advisories for you to review. Each draft says why it was made, and the Pipeline page says why an event was declined. <a href="https://github.com/zsazsa-project/zsazsa#what-the-analyser-does" target="_blank" rel="noopener">What the analyser does</a> explains how it decides and how to correct it.</li>
             <li><strong>Other products.</strong> Flash intel alerts, vulnerability advisories, threat landscape reports, threat actor profiles, indicator feeds and detection engineering requests are shown on the <a href="features.html">features page</a>.</li>
             <li><strong>Upgrading.</strong> Read the <a href="https://github.com/zsazsa-project/zsazsa/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG</a> first: a release can come with a migration to run.</li>
           </ul>
